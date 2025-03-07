@@ -1,1 +1,615 @@
-Hello World
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecBot: Un SDK para Análisis de Seguridad</title>
+    <!-- Importar Highlight.js desde CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .presenters {
+            font-style: italic;
+            margin-top: 15px;
+        }
+        section {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        pre {
+            background-color: transparent;
+            border: none;
+            border-radius: 4px;
+            padding: 0;
+            overflow: auto;
+            margin: 0;
+        }
+        code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            border-radius: 4px;
+            padding: 15px;
+            display: block;
+        }
+        .example {
+            margin-bottom: 30px;
+        }
+        .output {
+            background-color: #282c34;
+            border-left: 4px solid #61afef;
+            padding: 10px 15px;
+            margin-top: 10px;
+            font-family: 'Consolas', monospace;
+            color: #abb2bf;
+            border-radius: 0 4px 4px 0;
+        }
+        .output p {
+            margin: 5px 0;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        /* Estilos adicionales para la salida formateada */
+        .output-line {
+            display: block;
+            font-family: 'Consolas', monospace;
+            padding: 2px 0;
+            margin:0;
+        }
+        .output-highlight {
+            color: #e5c07b;
+            font-weight: bold;
+        }
+        .output-command {
+            color: #61afef;
+        }
+        .output-success {
+            color: #98c379;
+        }
+        .output-warning {
+            color: #e5c07b;
+        }
+        .output-error {
+            color: #e06c75;
+        }
+        .references {
+            background-color: #f8f9fa;
+            border-left: 4px solid #2c3e50;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .references h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .references ul {
+            margin-bottom: 10px;
+        }
+        .contact-info {
+            background-color: #e8f4fc;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        /* Estilo para el bloque de código generado por el agente */
+        .agent-code {
+            margin-top: 25px;
+            margin-bottom: 25px;
+            background-color: #2d333b;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+        .agent-code-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #e5c07b;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .agent-code-header .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .terminal-conversation {
+            font-family: 'Consolas', 'Courier New', monospace;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+        .user-message {
+            background-color: #f0f0f0;
+            border-left: 4px solid #2c3e50;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+        .agent-response {
+            margin: 15px 0;
+        }
+        .terminal-block {
+            background-color: #282c34;
+            border-radius: 5px;
+            margin: 10px 0;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        .command {
+            color: #98c379;
+            margin: 5px 0;
+        }
+        .prompt {
+            color: #61afef;
+            margin-right: 10px;
+        }
+        .output {
+            color: #abb2bf;
+            margin: 10px 0 5px 0;
+            white-space: pre;
+        }
+        .agent-plan {
+            background-color: #2d333b;
+            border-left: 4px solid #98c379;
+            color: #e5c07b;
+            padding: 10px 15px 10px 30px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        /* Estilos para secciones colapsables */
+        .collapsible {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 12px 15px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .collapsible:hover {
+            background-color: #e8e8e8;
+        }
+
+        .collapsible:after {
+            content: '\002B'; /* Unicode character for "plus" sign (+) */
+            font-size: 20px;
+            color: #2c3e50;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: "\2212"; /* Unicode character for "minus" sign (-) */
+        }
+
+        .collapsible-content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: white;
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SecBot: SDK para Análisis de Seguridad</h1>
+        <p class="presenters">Presentado por: <a style="color: #e5c07b;" href="https://x.com/dobleio">Alejandro Vidal</a> y <a style="color: #e5c07b;" href="https://x.com/Tip0Incognit0">Javier Vidal</a></p>
+    </header>
+
+    <section class="references">
+        <h3>Referencias y Recursos</h3>
+        <ul>
+            <li><a href="https://www.promptingguide.ai/" target="_blank">Guía de Prompting</a> - Aprende técnicas avanzadas de prompting para IAs</li>
+            <li><a href="https://huggingface.co/agents-course" target="_blank">Curso de Agentes en Hugging Face</a> - Curso sobre agentes de IA</li>
+            <li><a href="https://github.com/albertan017/LLM4Decompile" target="_blank">LLM4Decompile</a> - Proyecto de decompilación con modelos de lenguaje</li>
+            <li><a href="https://cloud.google.com/blog/topics/threat-intelligence/xrefer-gemini-assisted-binary-navigator" target="_blank">XRefer: Gemini-Assisted Binary Navigator</a> - Navegación asistida por IA en binarios</li>
+        </ul>
+        <div class="contact-info">
+            Si te ha gustado nuestra charla yestás interesado en formación de IA y ciberseguridad, contacta con <a href="mailto:6g5vd7s6c@mozmail.com">6g5vd7s6c@mozmail.com</a> ;)
+        </div>
+    </section>
+
+    <section id="resumen">
+        <h2>Resumen</h2>
+        <p>Bienvenidos a nuestra presentación de Agentes de IA aplicados a la ingeniería inversa. En ella mostramos, un SDK para crear agentes de IA para ingeniería inversa: `tobbot`.</p>
+        <p>En esta charla, exploraremos las capacidades de distintas IA en crackmes reales. Cómo crearlos, consejos, y trucos para su uso.</p>
+        <p>Por último exploramos distintas maneras de evaluar estos agentes de manera automática mediante la creación de un benchmark de próxima publicación.</p>
+    </section>
+
+    <section id="ejemplos">
+        <h2>Ejemplos del SDK</h2>
+        
+        <div class="example">
+            <h3>Ejemplo 1: Configuración y análisis de un desafío binario</h3>
+            <p>En este ejemplo, configuramos un entorno para analizar un crackme utilizando una máquina virtual QEMU:</p>
+            <pre><code class="language-python">import os
+os.environ["AWS_REGION"] = "us-east-1"
+
+import tobbot as tob
+from tobbot.benchmarks import Challenge
+from tobbot.benchmarks.tools import get_r2_remote_session
+from tobbot.benchmarks.execution.qemu import QemuExecutionManager
+
+# Configuración del entorno de ejecución
+em = QemuExecutionManager(
+    vm_name="qemu_windows11_arm", 
+    ssh_user="puppet",
+)
+
+# Carga del desafío desde un archivo JSON
+challenge = Challenge.from_json(
+    "../crackmes/json/1234.json",
+    execution_manager=em
+)
+
+# Compilación del desafío si es necesario
+challenge.build_if_needed()
+
+# Iniciar sesión de radare2 para análisis
+r2 = get_r2_remote_session(challenge=challenge, em=em)</code></pre>
+            <div class="output">
+                <p class="output-line output-warning">WARN: Relocs has not been applied. Please use <span class="output-command">`-e bin.relocs.apply=true`</span> or <span class="output-command">`-e bin.cache=true`</span> next time</p>
+            </div>
+        </div>
+        
+        <button class="collapsible">Ejemplo 2: Análisis automatizado de bytecode con IA</button>
+        <div class="collapsible-content">
+            <div class="example">
+                <p>Utilizando un agente basado en IA para analizar y decodificar bytecode:</p>
+                
+                <div class="terminal-conversation">
+                    <p class="user-message"><strong>Human:</strong> Go for it!</p>
+                    
+                    <p class="agent-response"><strong>Agent:</strong> I'll help you solve this CrackMe challenge. Let's start by gathering information about the binary and understanding its structure.</p>
+                    
+                    <div class="terminal-block">
+                        <p class="command"><span class="prompt">$</span> get_binary_info()</p>
+                        <pre class="output">arch x86
+baddr 0x140000000
+binsz 22016
+bintype pe
+bits 64
+canary true
+injprot false
+retguard false
+class PE32+
+...</pre>
+                    </div>
+                    
+                    <p class="agent-response">Now let's look at the entry point of the program:</p>
+                    
+                    <div class="terminal-block">
+                        <p class="command"><span class="prompt">$</span> get_entry_point_address()</p>
+                        <pre class="output">"0x140002970 (5368719728)"</pre>
+                    </div>
+                    
+                    <p class="agent-response">Let's examine the entry point function:</p>
+                    
+                    <div class="terminal-block">
+                        <p class="command"><span class="prompt">$</span> get_disasm_function_at_addr(addr="0x140002970")</p>
+                        <pre class="output">;-- rip:
+373: entry0 ();
+afv: vars(3:sp[0x18..0x40])
+0x140002970 sub rsp, 0x28
+0x140002974 call fcn.140002d8c
+0x140002979 add rsp, 0x28
+0x14000297d jmp 0x1400027f4
+..
+; CALL XREF from entry0 @ 0x14000281d(x)
+; CODE XREF from fcn.140002984 @ 0x1400029b0(x)
+; CODE XREF from fcn.140002984 @ 0x14000299e(x)
+; CODE XREF from fcn.140002984 @ 0x14000298f(x)
+; CODE XREF from fcn.140002984 @ 0x1400029bb(x)
+; CODE XREF from fcn.140002984 @ 0x1400029a3(x)
+; CALL XREF from entry0 @ 0x140002808(x)
+; CODE XREF from fcn.1400029c0 @ 0x1400029c6(x)
+...</pre>
+                    </div>
+                    
+                    <p class="agent-response">Let's look at the main function or other important functions in the binary:</p>
+                    
+                    <div class="terminal-block">
+                        <p class="command"><span class="prompt">$</span> get_functions_short()</p>
+                        <pre class="output">0x140002970 22 373 entry0
+0x140001770 20 566 main
+0x1400026dc 3 16 fcn.1400026dc
+0x1400010e0 1 33 fcn.1400010e0
+0x140003302 1 6 sub.VCRUNTIME140.dll__CxxThrowException
+0x1400011d0 1 33 fcn.1400011d0
+0x140002250 22 352 fcn.140002250
+...</pre>
+                    </div>
+                    
+                    <p class="agent-response">Let's examine the main function:</p>
+                    
+                    <div class="terminal-block">
+                        <p class="command"><span class="prompt">$</span> get_disasm_function_at_addr(addr="0x140001770")</p>
+                    </div>
+                </div>
+
+                <pre><code class="language-python"># Inicialización del agente de análisis
+agent = tob.OfflineCrackerAgentWithPythonInterpreter(
+    r2=r2,
+    challenge=challenge,
+    provider="bedrock",
+    model="us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+)
+
+# Iniciando interacción con el agente
+await agent.chat("Go for it!")</code></pre>
+
+                <p>Durante la sesión de ingeniería inversa, el agente creó un código de python emulando el bytecode que existía en este crackme.</p>
+
+                <p>Esto nos parece un ejemplo interesante que muestra el nivel de comprensión que tiene el agente respecto al binario.</p>
+
+                <div class="agent-code">
+                    <div class="agent-code-header">
+                        <span class="emoji">🤖</span> Código generado por el agente para analizar el bytecode
+                    </div>
+                    <pre><code class="language-python"># Let's try to decode the bytecode
+bytecode = [
+    0x01, 0x6d, 0x65, 0x6f,  # 0x6f656d01 (little endian)
+    0x77, 0x07, 0x02, 0x03,  # 0x3020777
+    0x61, 0x72, 0x63, 0x68,  # 0x68637261
+    0x07, 0x04, 0x1c, 0x01,  # 0x11c0407
+    0x69, 0x6e, 0x63, 0x6f,  # 0x6f636e69
+    0x72, 0x72, 0x65, 0x63,  # 0x63657272
+    0x74, 0x07, 0x05, 0x25,  # 0x25050774
+    0x01, 0x63, 0x6f, 0x72,  # 0x726f6301
+    0x72, 0x65, 0x63, 0x74,  # 0x74636572
+    0x07, 0x06                # 0x607
+]
+
+print("Bytecode length:", len(bytecode))
+print("Bytecode:", bytecode)
+
+# Interpretación del bytecode
+i = 0
+while i < len(bytecode):
+    opcode = bytecode[i]
+    print(f"Position {i}: Opcode {opcode}")
+    
+    if opcode == 0x01:  # Print message
+        message = ""
+        i += 1
+        while i < len(bytecode) and bytecode[i] != 0x07:
+            message += chr(bytecode[i])
+            i += 1
+        print(f"  Print message: '{message}'")
+    elif opcode == 0x02:  # Get user input
+        print("  Get user input")
+        i += 1
+    elif opcode == 0x03:  # Store input for comparison
+        print("  Store input for comparison")
+        i += 1
+    elif opcode == 0x04:  # Compare input with expected value
+        print("  Compare input with expected value")
+        i += 1
+    elif opcode == 0x05:  # Jump to instruction
+        jump_target = bytecode[i+1]
+        print(f"  Jump to instruction at position {jump_target}")
+        i += 2
+    elif opcode == 0x06:  # Exit prompt
+        print("  Exit prompt")
+        i += 1
+    elif opcode == 0x07:  # End of instruction or loop
+        print("  End of instruction")
+        i += 1
+    else:
+        print(f"  Unknown opcode: {opcode}")
+        i += 1</code></pre>
+                </div>
+
+                <div class="output">
+                    <p class="output-line"><span class="output-highlight">Bytecode length:</span> 38</p>
+                    <p class="output-line"><span class="output-highlight">Bytecode:</span> [1, 109, 101, 111, 119, 7, 2, 3, 97, 114, 99, 104, 7, 4, 28, 1, 105, 110, 99, 111, 114, 114, 101, 99, 116, 7, 5, 37, 1, 99, 111, 114, 114, 101, 99, 116, 7, 6]</p>
+                    <p class="output-line"><span class="output-highlight">Position 0:</span> Opcode 1</p>
+                    <p class="output-line">&nbsp;&nbsp;Print message: '<span class="output-success">meow</span>'</p>
+                    <p class="output-line"><span class="output-highlight">Position 5:</span> Opcode 7</p>
+                    <p class="output-line">&nbsp;&nbsp;End of instruction</p>
+                    <p class="output-line"><span class="output-highlight">Position 6:</span> Opcode 2</p>
+                    <p class="output-line">&nbsp;&nbsp;Get user input</p>
+                    <p class="output-line"><span class="output-highlight">Position 7:</span> Opcode 3</p>
+                    <p class="output-line">&nbsp;&nbsp;Store input for comparison</p>
+                    <p class="output-line"><span class="output-highlight">Position 8:</span> Opcode 97</p>
+                    <p class="output-line">&nbsp;&nbsp;Unknown opcode: 97</p>
+                    <p class="output-line">...</p>
+                </div>
+            </div>
+        </div>
+        
+        <button class="collapsible">Ejemplo 3: Anotación y asistencia en la ingeniería inversa</button>
+        <div class="collapsible-content">
+            <div class="example">
+                <p>Creando un agente especializado para comentar y anotar hallazgos durante el análisis:</p>
+                <pre><code class="language-python"># Crear un agente para comentar y documentar el análisis en radare2
+prompt = """
+You are a radare2 expert. You can use all commands to explore the binary. Your goal is to understand the binary
+with offline analysis and add your findings in the form of comments.
+
+Though carefully before adding comments. You can do it function by function.
+If your understanding is not complete, you can add a comment with a question.
+
+Later, you can answer your own questions.
+
+Use `add_comment` and `remove_comment` frequently to update your understanding.
+"""
+
+class R2CommenterAgent(R2AgentBase):
+    tools = basic_tools + persistence_tools
+    system_prompt = prompt
+
+# Exportar comentarios como memoria para otras IAs (enfoque multiagente)
+with open("memory", "w") as fd:
+    fd.write(r2.cmd("CC*"))</code></pre>
+            </div>
+        </div>
+
+        <button class="collapsible">Ejemplo 4: Modificaciones en el binario (Binary Patching)</button>
+        <div class="collapsible-content">
+            <div class="example">
+                <p>Utilizando un agente de IA para realizar modificaciones directas en el binario:</p>
+                <pre><code class="language-python"># Solicitar al agente que realice modificaciones en el binario (binary patching)
+await agent.chat("With `wao` (radare2) and other commands using the `run_command` tool patch this crackme. Feel free to pick other password or change it in another way. Be creative!")</code></pre>
+
+                <div class="agent-code">
+                    <div class="agent-code-header">
+                        <span class="emoji">🤖</span> Conversación con el agente para modificar el binario
+                    </div>
+                    
+                    <div class="terminal-conversation">
+                        <p class="user-message"><strong>Human:</strong> With wao (radare2) and other commands using the run_command tool patch this crackme. Feel free to pick other password or change it in another way. Be creative! You are nailing this demo! :D</p>
+                        
+                        <p class="agent-response"><strong>Agent:</strong> Thank you for the encouragement! I'll create a creative patch for this crackme using radare2 commands. Let's make some interesting modifications to the program.</p>
+                        
+                        <div class="terminal-block">
+                            <p class="command"><span class="prompt">$</span> wao?</p>
+                            <pre class="output">| wao [op] performs a modification on current opcode
+| wao+[op] same as 'wao', but seeks forward after writing
+| wao nop nop current opcode
+| wao jinf assemble an infinite loop
+| wao jz make current opcode conditional (same as je) (zero)
+| wao jnz make current opcode conditional (same as jne) (not zero)
+| wao ret1 make the current opcode return 1
+| wao ret0 make the current opcode return 0
+| wao retn make the current opcode return -1
+| wao nocj remove conditional operation from branch (make it unconditional)
+| wao trap make the current opcode a trap
+| wao recj reverse (swap) conditional branch instruction
+| WIP: not all archs are supported and not all commands work on all archs</pre>
+                        </div>
+                        
+                        <p class="agent-response">Let's first examine the current bytecode in the main function to understand what we want to patch:</p>
+                        
+                        <div class="terminal-block">
+                            <p class="command"><span class="prompt">$</span> get_hex_dump_at_addr addr="0x1400017a6" size=64</p>
+                            <pre class="output">    offset - A6A7 A8A9 AAAB ACAD AEAF B0B1 B2B3 B4B5 6789ABCDEF012345
+    0x1400017a6 c745 9701 6d65 6fc7 459b 7707 0203 c745 .E..meo.E.w....E
+    0x1400017b6 9f61 7263 68c7 45a3 0704 1c01 c745 a769 .arch.E......E.i
+    0x1400017c6 6e63 6fc7 45ab 7272 6563 c745 af74 0705 nco.E.rrec.E.t..
+    0x1400017d6 25c7 45b3 0163 6f72 c745 b772 6563 7466 %.E..cor.E.rectf</pre>
+                        </div>
+                        
+                        <p class="agent-response">Now, let's create a more interesting crackme by:</p>
+                        <ul class="agent-plan">
+                            <li>Changing the password from "arch" to something more complex</li>
+                            <li>Adding a twist to the validation logic</li>
+                            <li>Modifying the success/failure messages</li>
+                        </ul>
+                        
+                        <p class="agent-response">Let's start by changing the password from "arch" to "r2wizard":</p>
+                        
+                        <div class="terminal-block">
+                            <p class="command"><span class="prompt">$</span> wx 7232 7769 7a61 7264 @ 0x1400017b6</p>
+                            <p class="command"><span class="prompt">$</span> get_hex_dump_at_addr addr="0x1400017b6" size=16</p>
+                            <pre class="output">    offset - B6B7 B8B9 BABB BCBD BEBF C0C1 C2C3 C4C5 6789ABCDEF012345
+    0x1400017b6 7232 7769 7a61 7264 0704 1c01 c745 a769 r2wizard.....E.i</pre>
+                        </div>
+                        
+                        <p class="agent-response">Now, let's modify the welcome message from "meow" to "r2 challenge":</p>
+                        
+                        <div class="terminal-block">
+                            <p class="command"><span class="prompt">$</span> wx 0172 3220 6368 616c 6c65 6e67 6507 @ 0x1400017a6</p>
+                            <p class="command"><span class="prompt">$</span> get_hex_dump_at_addr addr="0x1400017a6" size=16</p>
+                            <pre class="output">    offset - A6A7 A8A9 AAAB ACAD AEAF B0B1 B2B3 B4B5 6789ABCDEF012345
+    0x1400017a6 0172 3220 6368 616c 6c65 6e67 6507 c745 .r2 challenge..E</pre>
+                        </div>
+                        
+                        <p class="agent-response">Now, let's modify the "incorrect" message to "Nice try, but wrong!":</p>
+                        
+                        <div class="terminal-block">
+                            <p class="command"><span class="prompt">$</span> wx 014e 6963 6520 7472 792c 2062 7574 2077 726f 6e67 2107 @ 0x1400017c6</p>
+                        </div>
+                        
+                        <p class="agent-response">And let's modify the "correct" message to "You are a true r2 wizard!":</p>
+                        
+                        <div class="terminal-block">
+                            <p class="command"><span class="prompt">$</span> wx 0159 6f75 2061 7265 2061 2074 7275 6520 7232 2077 697a 6172 6421 07 @ 0x1400017e0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacto">
+        <h2>Contacto</h2>
+        <ul>
+            <li><a href="mailto:6g5vd7s6c@mozmail.com">6g5vd7s6c@mozmail.com</a></li>
+            <li><a href="https://x.com/Tip0Incognit0" target="_blank">https://x.com/Tip0Incognit0</a></li>
+            <li><a href="https://x.com/dobleio" target="_blank">https://x.com/dobleio</a></li>
+        </ul>
+    </section>
+
+    <footer>
+        <p></p>
+    </footer>
+
+    <!-- Script para inicializar highlight.js -->
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+            
+            // Script para gestionar las secciones colapsables
+            var coll = document.getElementsByClassName("collapsible");
+            for (var i = 0; i < coll.length; i++) {
+                coll[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
